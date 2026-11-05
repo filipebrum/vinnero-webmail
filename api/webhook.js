@@ -4,15 +4,16 @@ export default async function handler(req, res) {
     }
 
     try {
-        console.log("Payload completo do Res:", JSON.stringify(req.body));
+        // Mostra no log da Vercel o corpo exato que chegou
+        console.log("BODY RECEBIDO:", JSON.stringify(req.body));
 
-        // O Resend Inbound costuma mandar os dados dentro de data ou no próprio body
-        const payload = req.body.data || req.body;
+        const payload = req.body || {};
+        const dataObj = payload.data || payload;
 
-        // Varre todas as variações possíveis onde o Resend pode colocar as informações
-        const fromEmail = payload.from || payload.sender || payload.from_email || payload.data?.from || 'Desconhecido';
-        const subjectText = payload.subject || payload.data?.subject || '(Sem assunto)';
-        const bodyText = payload.text || payload.html || payload.body || payload.data?.text || payload.data?.html || JSON.stringify(req.body);
+        // Tenta extrair de qualquer propriedade possível
+        const fromEmail = dataObj.from || dataObj.sender || dataObj.from_email || payload.from || 'teste@resend.dev';
+        const subjectText = dataObj.subject || payload.subject || 'E-mail de Teste';
+        const bodyText = dataObj.text || dataObj.html || dataObj.body || JSON.stringify(payload);
 
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseKey = process.env.SUPABASE_ANON_KEY;
@@ -32,14 +33,12 @@ export default async function handler(req, res) {
             })
         });
 
-        if (!response.ok) {
-            const errData = await response.text();
-            console.error("Erro Supabase:", errData);
-        }
+        const responseText = await response.text();
+        console.log("RESPOSTA SUPABASE:", response.status, responseText);
 
         return res.status(200).json({ success: true });
     } catch (error) {
-        console.error("Erro webhook:", error.message);
+        console.error("ERRO FATAL NO WEBHOOK:", error.message);
         return res.status(200).json({ success: true });
     }
 }
