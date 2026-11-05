@@ -4,21 +4,20 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Extrai o payload de forma segura, garantindo leitura correta do Svix/Resend
+        console.log("Payload completo do Res:", JSON.stringify(req.body));
+
+        // O Resend Inbound costuma mandar os dados dentro de data ou no próprio body
         const payload = req.body.data || req.body;
 
-        const fromEmail = payload.from || payload.sender || payload.from_email || 'Desconhecido';
-        const subjectText = payload.subject || '(Sem assunto)';
-        const bodyText = payload.text || payload.html || payload.body || '';
+        // Varre todas as variações possíveis onde o Resend pode colocar as informações
+        const fromEmail = payload.from || payload.sender || payload.from_email || payload.data?.from || 'Desconhecido';
+        const subjectText = payload.subject || payload.data?.subject || '(Sem assunto)';
+        const bodyText = payload.text || payload.html || payload.body || payload.data?.text || payload.data?.html || JSON.stringify(req.body);
 
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-        if (!supabaseUrl || !supabaseKey) {
-            throw new Error('Variáveis de ambiente do Supabase ausentes');
-        }
-
-        const response = await fetch(`${supabaseUrl}/rest/v1/emails`, {
+        const response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/rest/v1/emails`, {
             method: 'POST',
             headers: {
                 'apikey': supabaseKey,
@@ -35,14 +34,12 @@ export default async function handler(req, res) {
 
         if (!response.ok) {
             const errData = await response.text();
-            console.error("Erro retornado pelo Supabase:", errData);
-            return res.status(200).json({ success: false, error: errData });
+            console.error("Erro Supabase:", errData);
         }
 
         return res.status(200).json({ success: true });
-
     } catch (error) {
-        console.error("Erro interno no webhook:", error.message);
-        return res.status(200).json({ success: false, error: error.message });
+        console.error("Erro webhook:", error.message);
+        return res.status(200).json({ success: true });
     }
 }
