@@ -1,0 +1,37 @@
+export default async function handler(req, res) {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Método não permitido' });
+    }
+
+    const { to, subject, text } = req.body;
+
+    if (!to || !subject || !text) {
+        return res.status(400).json({ success: false, error: 'Campos obrigatórios faltando' });
+    }
+
+    try {
+        const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                from: 'Vinnero <contato@vinnero.com.br>',
+                to: [to],
+                subject: subject,
+                text: text
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            return res.status(200).json({ success: true, data });
+        } else {
+            return res.status(400).json({ success: false, error: data });
+        }
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+}
