@@ -4,9 +4,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        console.log("Webhook recebido - Body bruto:", JSON.stringify(req.body));
-
-        // Trata diferentes estruturas de payload que o Resend/Svix podem enviar
+        // Extrai o payload de forma segura, garantindo leitura correta do Svix/Resend
         const payload = req.body.data || req.body;
 
         const fromEmail = payload.from || payload.sender || payload.from_email || 'Desconhecido';
@@ -38,14 +36,13 @@ export default async function handler(req, res) {
         if (!response.ok) {
             const errData = await response.text();
             console.error("Erro retornado pelo Supabase:", errData);
-            return res.status(400).json({ success: false, error: errData });
+            return res.status(200).json({ success: false, error: errData });
         }
 
-        console.log("E-mail salvo com sucesso no Supabase!");
         return res.status(200).json({ success: true });
 
     } catch (error) {
         console.error("Erro interno no webhook:", error.message);
-        return res.status(500).json({ success: false, error: error.message });
+        return res.status(200).json({ success: false, error: error.message });
     }
 }
