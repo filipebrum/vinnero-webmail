@@ -3,229 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vinnero Webmail</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Vinnero Email - Webmail</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .hidden-view { display: none; }
-        #auth-screen { position: fixed; inset: 0; background: #0f172a; z-index: 50; display: flex; align-items: center; justify-content: center; }
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+<body class="bg-[#1a0f0a] text-[#f5efe6] min-h-screen flex flex-col">
 
-    <!-- Tela de Autenticação / Senha -->
-    <div id="auth-screen">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md flex flex-col gap-4 text-center">
-            <h2 class="text-xl font-bold text-slate-800">🍷 Vinnero Mail</h2>
-            <p class="text-sm text-slate-500">Digite sua senha de acesso para continuar.</p>
-            <input type="password" id="access-password" placeholder="Sua senha secreta" class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:border-rose-500 outline-none">
-            <button onclick="checkPassword()" class="w-full bg-rose-700 hover:bg-rose-800 text-white font-medium py-2.5 rounded-lg transition-colors">
-                Entrar
-            </button>
+    <!-- Tela de Senha (Proteção do Webmail) -->
+    <div id="auth-screen" class="fixed inset-0 bg-[#1a0f0a] z-50 flex items-center justify-center p-4">
+        <div class="bg-[#2b1810] border border-[#4a2e23] rounded-2xl p-8 w-full max-w-md shadow-2xl text-center">
+            <div class="flex justify-center mb-6">
+                <img src="logo-email.png" alt="Vinnero Email" class="h-16 w-auto object-contain[cite: 1]">
+            </div>
+            <h1 class="text-xl font-semibold mb-2 text-[#f5efe6]">Acesso Restrito</h1>
+            <p class="text-sm text-[#d4c3b3] mb-6">Digite a senha para acessar o Vinnero Email.</p>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <input type="password" id="access-password" placeholder="Senha de acesso" required
+                    class="w-full px-4 py-3 bg-[#1a0f0a] border border-[#4a2e23] rounded-xl text-[#f5efe6] placeholder-[#8c7365] focus:outline-none focus:border-[#d4c3b3]">
+                <button type="submit" 
+                    class="w-full py-3 bg-[#4a2e23] hover:bg-[#5c3b2e] text-[#f5efe6] font-medium rounded-xl transition-colors">
+                    Entrar
+                </button>
+            </form>
+            <p id="auth-error" class="text-red-400 text-xs mt-3 hidden">Senha incorreta.</p>
         </div>
     </div>
 
-    <!-- Cabeçalho -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2 text-rose-800 font-bold text-xl">
-                <span>🍷 Vinnero Mail</span>
+    <!-- Interface Principal do Webmail -->
+    <div id="app-screen" class="flex-1 flex flex-col hidden">
+        <!-- Cabeçalho -->
+        <header class="flex items-center justify-between px-6 py-4 bg-[#2b1810] border-b border-[#4a2e23]">
+            <div class="flex items-center space-x-3">
+                <img src="logo-email.png" alt="Vinnero Email" class="h-10 w-auto object-contain[cite: 1]">
             </div>
-            <div class="text-sm font-medium text-slate-500">
-                contato@vinnero.com.br
-            </div>
-        </div>
-    </header>
-
-    <!-- Estrutura Principal -->
-    <main class="flex-1 max-w-5xl mx-auto w-full flex flex-col md:flex-row gap-6 p-4">
-
-        <!-- Menu Lateral -->
-        <aside class="w-full md:w-64 flex flex-col gap-4">
-            <button onclick="toggleView('compose')" class="w-full bg-rose-700 hover:bg-rose-800 text-white font-semibold py-3 px-4 rounded-xl shadow-sm transition-colors text-center">
-                + Nova Mensagem
-            </button>
-
-            <nav class="flex flex-row md:flex-col gap-2">
-                <button onclick="toggleView('inbox')" id="btn-inbox" class="flex-1 md:flex-none text-left px-4 py-3 bg-white text-rose-700 rounded-lg border border-slate-200 shadow-sm font-medium transition-colors">
-                    📥 Caixa de Entrada
+            <div class="flex items-center space-x-4">
+                <button onclick="fetchEmails()" class="px-4 py-2 bg-[#4a2e23] hover:bg-[#5c3b2e] text-xs font-medium rounded-lg transition-colors cursor-pointer">
+                    Atualizar Caixa
                 </button>
-            </nav>
-        </aside>
+                <button onclick="handleLogout()" class="text-xs text-[#d4c3b3] hover:text-[#f5efe6] transition-colors">
+                    Sair
+                </button>
+            </div>
+        </header>
 
-        <!-- Área de Conteúdo -->
-        <section class="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[500px] flex flex-col">
-
-            <!-- Tela: Caixa de Entrada -->
-            <div id="inbox-view" class="flex flex-col h-full flex-1">
-                <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <h2 class="text-lg font-semibold text-slate-800">Mensagens Recentes</h2>
-                    <button onclick="loadEmails()" class="px-3 py-1 text-sm bg-slate-100 hover:bg-slate-200 rounded text-slate-600 transition-colors">
-                        Atualizar
-                    </button>
-                </div>
-                <div class="divide-y divide-slate-100 overflow-y-auto flex-1">
-                    <p class="p-4 text-sm text-slate-500">Carregando mensagens...</p>
+        <!-- Corpo Principal -->
+        <main class="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Lista de E-mails -->
+            <div class="bg-[#2b1810] border border-[#4a2e23] rounded-2xl p-4 overflow-y-auto max-h-[75vh]">
+                <h2 class="text-sm font-semibold text-[#d4c3b3] uppercase tracking-wider mb-4 px-2">Caixa de Entrada</h2>
+                <div id="email-list" class="space-y-2">
+                    <p class="text-xs text-[#8c7365] px-2">Carregando mensagens...</p>
                 </div>
             </div>
 
-            <!-- Tela: Nova Mensagem -->
-            <div id="compose-view" class="hidden-view flex flex-col h-full flex-1">
-                <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
-                    <button onclick="toggleView('inbox')" class="text-rose-700 font-semibold text-sm">
-                        ← Voltar
-                    </button>
-                    <h2 class="text-lg font-semibold text-slate-800">Nova Mensagem</h2>
-                </div>
-                <div class="p-4 flex flex-col gap-4 flex-1">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">De</label>
-                        <input type="text" value="contato@vinnero.com.br" disabled class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-500 cursor-not-allowed">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">Para</label>
-                        <input type="email" id="input-to" placeholder="cliente@email.com" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:border-rose-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-500 mb-1">Assunto</label>
-                        <input type="text" id="input-subject" placeholder="Assunto da mensagem" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:border-rose-500 outline-none">
-                    </div>
-                    <div class="flex-1 flex flex-col min-h-[180px]">
-                        <label class="block text-xs font-medium text-slate-500 mb-1">Mensagem</label>
-                        <textarea id="input-message" placeholder="Escreva aqui..." class="w-full flex-1 p-3 bg-white border border-slate-300 rounded-lg text-sm focus:border-rose-500 outline-none resize-none"></textarea>
-                    </div>
-                    <div class="flex justify-end pt-2">
-                        <button type="button" id="btn-send" onclick="sendEmail()" class="bg-rose-700 hover:bg-rose-800 text-white font-medium py-2.5 px-6 rounded-lg shadow-sm transition-colors">
-                            Enviar via Resend
-                        </button>
+            <!-- Visualização da Mensagem -->
+            <div class="md:col-span-2 bg-[#2b1810] border border-[#4a2e23] rounded-2xl p-6 flex flex-col max-h-[75vh] overflow-y-auto">
+                <div id="email-detail" class="space-y-4">
+                    <div class="text-center py-16 text-[#8c7365]">
+                        <p class="text-sm">Selecione um e-mail ao lado para ler o conteúdo.</p>
                     </div>
                 </div>
             </div>
+        </main>
+    </div>
 
-        </section>
-    </main>
-
+    <!-- Scripts de Controle -->
     <script>
-        // Defina sua senha aqui (altere 'vinnero2026' para a senha que preferir)
-        const SENHA_MESTRE = 'vinnero2026';
+        const CORRECT_PASSWORD = "vinnero2026"; // Senha configurada no front-end
 
-        function checkPassword() {
-            const input = document.getElementById('access-password').value;
-            if (input === SENHA_MESTRE) {
-                document.getElementById('auth-screen').style.display = 'none';
-                sessionStorage.setItem('vinnero_auth', 'true');
-                loadEmails();
-            } else {
-                alert('Senha incorreta!');
-                document.getElementById('access-password').value = '';
+        // Verifica se já está autenticado na sessão
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('vinnero_auth') === 'true') {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                fetchEmails();
             }
-        }
-
-        // Permite apertar Enter para enviar a senha
-        document.getElementById('access-password').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') checkPassword();
         });
 
-        // Verifica se já estava logado na mesma sessão
-        window.onload = function() {
-            if (sessionStorage.getItem('vinnero_auth') === 'true') {
-                document.getElementById('auth-screen').style.display = 'none';
-                loadEmails();
-            }
-        };
-
-        function toggleView(view) {
-            const inbox = document.getElementById('inbox-view');
-            const compose = document.getElementById('compose-view');
-            const btnInbox = document.getElementById('btn-inbox');
-            
-            if (view === 'compose') {
-                inbox.classList.add('hidden-view');
-                compose.classList.remove('hidden-view');
-                btnInbox.classList.remove('bg-white', 'text-rose-700', 'border-slate-200', 'shadow-sm');
-                btnInbox.classList.add('text-slate-600', 'bg-transparent');
+        function handleLogin(event) {
+            event.preventDefault();
+            const pass = document.getElementById('access-password').value;
+            if (pass === CORRECT_PASSWORD) {
+                sessionStorage.setItem('vinnero_auth', 'true');
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                fetchEmails();
             } else {
-                compose.classList.add('hidden-view');
-                inbox.classList.remove('hidden-view');
-                btnInbox.classList.add('bg-white', 'text-rose-700', 'border-slate-200', 'shadow-sm');
-                btnInbox.classList.remove('text-slate-600', 'bg-transparent');
-                loadEmails();
+                document.getElementById('auth-error').classList.remove('hidden');
             }
         }
 
-        async function loadEmails() {
-            const inboxContainer = document.querySelector('#inbox-view .divide-y');
-            inboxContainer.innerHTML = '<p class="p-4 text-sm text-slate-500">Carregando mensagens...</p>';
+        function handleLogout() {
+            sessionStorage.removeItem('vinnero_auth');
+            location.reload();
+        }
 
+        async function fetchEmails() {
+            const listContainer = document.getElementById('email-list');
+            listContainer.innerHTML = '<p class="text-xs text-[#8c7365] px-2">Atualizando...</p>';
+            
             try {
-                const response = await fetch('/api/get-emails');
-                const emails = await response.json();
+                const res = await fetch('/api/get-emails');
+                const emails = await res.json();
 
                 if (!Array.isArray(emails) || emails.length === 0) {
-                    inboxContainer.innerHTML = '<p class="p-4 text-sm text-slate-500">Nenhuma mensagem encontrada.</p>';
+                    listContainer.innerHTML = '<p class="text-xs text-[#8c7365] px-2">Nenhum e-mail recebido ainda.</p>';
                     return;
                 }
 
-                inboxContainer.innerHTML = '';
-
-                emails.forEach(email => {
-                    const dateObj = new Date(email.created_at);
-                    const dateStr = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-
-                    const emailHTML = `
-                        <div class="p-4 hover:bg-slate-50 cursor-pointer flex flex-col gap-1 border-b border-slate-100">
-                            <div class="flex justify-between items-center">
-                                <span class="font-semibold text-slate-900">${email.from_email || 'Desconhecido'}</span>
-                                <span class="text-xs text-rose-600 font-medium">${dateStr}</span>
-                            </div>
-                            <h3 class="font-medium text-slate-800 text-sm">${email.subject || '(Sem assunto)'}</h3>
-                            <p class="text-sm text-slate-500 truncate">${email.body || ''}</p>
-                        </div>
+                listContainer.innerHTML = '';
+                emails.forEach((email, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'p-3 rounded-xl bg-[#1a0f0a] border border-[#4a2e23] hover:border-[#8c7365] cursor-pointer transition-colors';
+                    item.innerHTML = `
+                        <p class="text-xs font-semibold text-[#f5efe6] truncate">${email.from_email || 'Desconhecido'}</p>
+                        <p class="text-xs text-[#d4c3b3] truncate mt-1">${email.subject || '(Sem assunto)'}</p>
+                        <span class="text-[10px] text-[#8c7365] mt-2 block">${new Date(email.created_at).toLocaleString()}</span>
                     `;
-                    inboxContainer.innerHTML += emailHTML;
+                    item.onclick = () => displayEmailDetail(email);
+                    listContainer.appendChild(item);
                 });
-            } catch (error) {
-                inboxContainer.innerHTML = '<p class="p-4 text-sm text-rose-500">Erro ao carregar mensagens do servidor.</p>';
+
+                // Seleciona o primeiro por padrão se houver
+                if (emails.length > 0) {
+                    displayEmailDetail(emails[0]);
+                }
+            } catch (err) {
+                listContainer.innerHTML = '<p class="text-xs text-red-400 px-2">Erro ao carregar e-mails.</p>';
             }
         }
 
-        async function sendEmail() {
-            const btn = document.getElementById('btn-send');
-            const to = document.getElementById('input-to').value;
-            const subject = document.getElementById('input-subject').value;
-            const text = document.getElementById('input-message').value;
-
-            if (!to || !subject || !text) {
-                alert('Preencha todos os campos!');
-                return;
-            }
-
-            btn.innerText = 'Enviando...';
-            btn.disabled = true;
-
-            try {
-                const response = await fetch('/api/send', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ to, subject, text })
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    alert('E-mail enviado com sucesso!');
-                    document.getElementById('input-to').value = '';
-                    document.getElementById('input-subject').value = '';
-                    document.getElementById('input-message').value = '';
-                    toggleView('inbox');
-                } else {
-                    alert('Erro ao enviar: ' + (result.error?.message || JSON.stringify(result.error)));
-                }
-            } catch (error) {
-                alert('Erro de conexão ao tentar enviar.');
-            } finally {
-                btn.innerText = 'Enviar via Resend';
-                btn.disabled = false;
-            }
+        function displayEmailDetail(email) {
+            const detailContainer = document.getElementById('email-detail');
+            detailContainer.innerHTML = `
+                <div class="border-b border-[#4a2e23] pb-4 mb-4">
+                    <span class="text-xs text-[#8c7365]">De:</span>
+                    <h2 class="text-sm font-medium text-[#f5efe6]">${email.from_email}</h2>
+                    <span class="text-xs text-[#8c7365] mt-2 block">Assunto:</span>
+                    <h1 class="text-lg font-semibold text-[#f5efe6]">${email.subject}</h1>
+                    <span class="text-xs text-[#8c7365] mt-1 block">${new Date(email.created_at).toLocaleString()}</span>
+                </div>
+                <div class="text-sm text-[#d4c3b3] whitespace-pre-wrap leading-relaxed">
+                    ${email.body || '(Sem conteúdo)'}
+                </div>
+            `;
         }
     </script>
 </body>
