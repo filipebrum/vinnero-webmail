@@ -11,40 +11,44 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-[#1a0f0a] text-[#f5efe6] min-h-screen flex flex-col">
+<body class="bg-[#f8f9fa] text-[#2c3e50] min-h-screen flex flex-col">
 
     <!-- Tela de Senha (Proteção do Webmail) -->
-    <div id="auth-screen" class="fixed inset-0 bg-[#1a0f0a] z-50 flex items-center justify-center p-4">
-        <div class="bg-[#2b1810] border border-[#4a2e23] rounded-2xl p-8 w-full max-w-md shadow-2xl text-center">
+    <div id="auth-screen" class="fixed inset-0 bg-[#f8f9fa] z-50 flex items-center justify-center p-4">
+        <div class="bg-white border border-[#e2e8f0] rounded-2xl p-8 w-full max-w-md shadow-xl text-center">
             <div class="flex justify-center mb-6">
-                <img src="logo-email.png" alt="Vinnero Email" class="h-16 w-auto object-contain[cite: 1]">
+                <!-- Substitua 'logo-email.png' pela URL direta ou caminho da sua imagem da logo se necessário -->
+                <img src="logo-email.png" alt="Vinnero Email" class="h-16 w-auto object-contain" onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50?text=Vinnero+Email';">
             </div>
-            <h1 class="text-xl font-semibold mb-2 text-[#f5efe6]">Acesso Restrito</h1>
-            <p class="text-sm text-[#d4c3b3] mb-6">Digite a senha para acessar o Vinnero Email.</p>
+            <h1 class="text-xl font-semibold mb-2 text-[#1a202c]">Acesso Restrito</h1>
+            <p class="text-sm text-[#718096] mb-6">Digite a senha para acessar o Vinnero Email.</p>
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <input type="password" id="access-password" placeholder="Senha de acesso" required
-                    class="w-full px-4 py-3 bg-[#1a0f0a] border border-[#4a2e23] rounded-xl text-[#f5efe6] placeholder-[#8c7365] focus:outline-none focus:border-[#d4c3b3]">
+                    class="w-full px-4 py-3 bg-[#f7fafc] border border-[#cbd5e0] rounded-xl text-[#2d3748] placeholder-[#a0aec0] focus:outline-none focus:border-[#4a5568]">
                 <button type="submit" 
-                    class="w-full py-3 bg-[#4a2e23] hover:bg-[#5c3b2e] text-[#f5efe6] font-medium rounded-xl transition-colors">
+                    class="w-full py-3 bg-[#2c3e50] hover:bg-[#34495e] text-white font-medium rounded-xl transition-colors">
                     Entrar
                 </button>
             </form>
-            <p id="auth-error" class="text-red-400 text-xs mt-3 hidden">Senha incorreta.</p>
+            <p id="auth-error" class="text-red-500 text-xs mt-3 hidden">Senha incorreta.</p>
         </div>
     </div>
 
     <!-- Interface Principal do Webmail -->
     <div id="app-screen" class="flex-1 flex flex-col hidden">
         <!-- Cabeçalho -->
-        <header class="flex items-center justify-between px-6 py-4 bg-[#2b1810] border-b border-[#4a2e23]">
+        <header class="flex items-center justify-between px-6 py-4 bg-white border-b border-[#e2e8f0] shadow-sm">
             <div class="flex items-center space-x-3">
-                <img src="logo-email.png" alt="Vinnero Email" class="h-10 w-auto object-contain[cite: 1]">
+                <img src="logo-email.png" alt="Vinnero Email" class="h-10 w-auto object-contain" onerror="this.onerror=null; this.src='https://via.placeholder.com/120x40?text=Vinnero';">
             </div>
-            <div class="flex items-center space-x-4">
-                <button onclick="fetchEmails()" class="px-4 py-2 bg-[#4a2e23] hover:bg-[#5c3b2e] text-xs font-medium rounded-lg transition-colors cursor-pointer">
-                    Atualizar Caixa
+            <div class="flex items-center space-x-3">
+                <button onclick="openComposeModal()" class="px-4 py-2 bg-[#2c3e50] hover:bg-[#34495e] text-white text-xs font-medium rounded-lg transition-colors flex items-center space-x-1 cursor-pointer shadow-sm">
+                    <span>+ Novo E-mail</span>
                 </button>
-                <button onclick="handleLogout()" class="text-xs text-[#d4c3b3] hover:text-[#f5efe6] transition-colors">
+                <button onclick="fetchEmails()" class="px-3 py-2 bg-[#edf2f7] hover:bg-[#e2e8f0] text-xs font-medium rounded-lg transition-colors cursor-pointer text-[#4a5568]">
+                    Atualizar
+                </button>
+                <button onclick="handleLogout()" class="text-xs text-[#718096] hover:text-[#2d3748] transition-colors px-2">
                     Sair
                 </button>
             </div>
@@ -53,17 +57,17 @@
         <!-- Corpo Principal -->
         <main class="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Lista de E-mails -->
-            <div class="bg-[#2b1810] border border-[#4a2e23] rounded-2xl p-4 overflow-y-auto max-h-[75vh]">
-                <h2 class="text-sm font-semibold text-[#d4c3b3] uppercase tracking-wider mb-4 px-2">Caixa de Entrada</h2>
+            <div class="bg-white border border-[#e2e8f0] rounded-2xl p-4 overflow-y-auto max-h-[75vh] shadow-sm">
+                <h2 class="text-xs font-semibold text-[#718096] uppercase tracking-wider mb-4 px-2">Caixa de Entrada</h2>
                 <div id="email-list" class="space-y-2">
-                    <p class="text-xs text-[#8c7365] px-2">Carregando mensagens...</p>
+                    <p class="text-xs text-[#a0aec0] px-2">Carregando mensagens...</p>
                 </div>
             </div>
 
             <!-- Visualização da Mensagem -->
-            <div class="md:col-span-2 bg-[#2b1810] border border-[#4a2e23] rounded-2xl p-6 flex flex-col max-h-[75vh] overflow-y-auto">
+            <div class="md:col-span-2 bg-white border border-[#e2e8f0] rounded-2xl p-6 flex flex-col max-h-[75vh] overflow-y-auto shadow-sm">
                 <div id="email-detail" class="space-y-4">
-                    <div class="text-center py-16 text-[#8c7365]">
+                    <div class="text-center py-16 text-[#a0aec0]">
                         <p class="text-sm">Selecione um e-mail ao lado para ler o conteúdo.</p>
                     </div>
                 </div>
@@ -71,11 +75,45 @@
         </main>
     </div>
 
+    <!-- Modal de Envio de E-mail -->
+    <div id="compose-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-[#e2e8f0] rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b border-[#e2e8f0] pb-3">
+                <h3 class="text-sm font-semibold text-[#2d3748]">Nova Mensagem</h3>
+                <button onclick="closeComposeModal()" class="text-[#718096] hover:text-[#2d3748] text-sm font-bold">✕</button>
+            </div>
+            <form onsubmit="sendEmail(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-[#718096] mb-1">Para:</label>
+                    <input type="email" id="compose-to" placeholder="destinatario@dominio.com" required
+                        class="w-full px-3 py-2 bg-[#f7fafc] border border-[#cbd5e0] rounded-lg text-xs text-[#2d3748] focus:outline-none focus:border-[#4a5568]">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-[#718096] mb-1">Assunto:</label>
+                    <input type="text" id="compose-subject" placeholder="Assunto do e-mail" required
+                        class="w-full px-3 py-2 bg-[#f7fafc] border border-[#cbd5e0] rounded-lg text-xs text-[#2d3748] focus:outline-none focus:border-[#4a5568]">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-[#718096] mb-1">Mensagem:</label>
+                    <textarea id="compose-body" rows="6" placeholder="Escreva sua mensagem aqui..." required
+                        class="w-full px-3 py-2 bg-[#f7fafc] border border-[#cbd5e0] rounded-lg text-xs text-[#2d3748] focus:outline-none focus:border-[#4a5568]"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeComposeModal()" class="px-4 py-2 bg-[#edf2f7] hover:bg-[#e2e8f0] text-xs font-medium rounded-lg text-[#4a5568]">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="send-btn" class="px-4 py-2 bg-[#2c3e50] hover:bg-[#34495e] text-white text-xs font-medium rounded-lg transition-colors">
+                        Enviar E-mail
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Scripts de Controle -->
     <script>
-        const CORRECT_PASSWORD = "vinnero2026"; // Senha configurada no front-end
+        const CORRECT_PASSWORD = "vinnero2026";
 
-        // Verifica se já está autenticado na sessão
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('vinnero_auth') === 'true') {
                 document.getElementById('auth-screen').classList.add('hidden');
@@ -102,52 +140,94 @@
             location.reload();
         }
 
+        function openComposeModal() {
+            document.getElementById('compose-modal').classList.remove('hidden');
+        }
+
+        function closeComposeModal() {
+            document.getElementById('compose-modal').classList.add('hidden');
+        }
+
+        async function sendEmail(event) {
+            event.preventDefault();
+            const to = document.getElementById('compose-to').value;
+            const subject = document.getElementById('compose-subject').value;
+            const body = document.getElementById('compose-body').value;
+            const sendBtn = document.getElementById('send-btn');
+
+            sendBtn.textContent = 'Enviando...';
+            sendBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to, subject, body })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert('E-mail enviado com sucesso!');
+                    closeComposeModal();
+                    document.getElementById('compose-to').value = '';
+                    document.getElementById('compose-subject').value = '';
+                    document.getElementById('compose-body').value = '';
+                } else {
+                    alert('Erro ao enviar: ' + (data.error || 'Erro desconhecido'));
+                }
+            } catch (err) {
+                alert('Erro de conexão ao enviar e-mail.');
+            } finally {
+                sendBtn.textContent = 'Enviar E-mail';
+                sendBtn.disabled = false;
+            }
+        }
+
         async function fetchEmails() {
             const listContainer = document.getElementById('email-list');
-            listContainer.innerHTML = '<p class="text-xs text-[#8c7365] px-2">Atualizando...</p>';
+            listContainer.innerHTML = '<p class="text-xs text-[#a0aec0] px-2">Atualizando...</p>';
             
             try {
                 const res = await fetch('/api/get-emails');
                 const emails = await res.json();
 
                 if (!Array.isArray(emails) || emails.length === 0) {
-                    listContainer.innerHTML = '<p class="text-xs text-[#8c7365] px-2">Nenhum e-mail recebido ainda.</p>';
+                    listContainer.innerHTML = '<p class="text-xs text-[#a0aec0] px-2">Nenhum e-mail recebido ainda.</p>';
                     return;
                 }
 
                 listContainer.innerHTML = '';
-                emails.forEach((email, index) => {
+                emails.forEach((email) => {
                     const item = document.createElement('div');
-                    item.className = 'p-3 rounded-xl bg-[#1a0f0a] border border-[#4a2e23] hover:border-[#8c7365] cursor-pointer transition-colors';
+                    item.className = 'p-3 rounded-xl bg-white border border-[#e2e8f0] hover:border-[#cbd5e0] hover:bg-[#f7fafc] cursor-pointer transition-colors shadow-xs';
                     item.innerHTML = `
-                        <p class="text-xs font-semibold text-[#f5efe6] truncate">${email.from_email || 'Desconhecido'}</p>
-                        <p class="text-xs text-[#d4c3b3] truncate mt-1">${email.subject || '(Sem assunto)'}</p>
-                        <span class="text-[10px] text-[#8c7365] mt-2 block">${new Date(email.created_at).toLocaleString()}</span>
+                        <p class="text-xs font-semibold text-[#2d3748] truncate">${email.from_email || 'Desconhecido'}</p>
+                        <p class="text-xs text-[#4a5568] truncate mt-1">${email.subject || '(Sem assunto)'}</p>
+                        <span class="text-[10px] text-[#a0aec0] mt-2 block">${new Date(email.created_at).toLocaleString()}</span>
                     `;
                     item.onclick = () => displayEmailDetail(email);
                     listContainer.appendChild(item);
                 });
 
-                // Seleciona o primeiro por padrão se houver
                 if (emails.length > 0) {
                     displayEmailDetail(emails[0]);
                 }
             } catch (err) {
-                listContainer.innerHTML = '<p class="text-xs text-red-400 px-2">Erro ao carregar e-mails.</p>';
+                listContainer.innerHTML = '<p class="text-xs text-red-500 px-2">Erro ao carregar e-mails.</p>';
             }
         }
 
         function displayEmailDetail(email) {
             const detailContainer = document.getElementById('email-detail');
             detailContainer.innerHTML = `
-                <div class="border-b border-[#4a2e23] pb-4 mb-4">
-                    <span class="text-xs text-[#8c7365]">De:</span>
-                    <h2 class="text-sm font-medium text-[#f5efe6]">${email.from_email}</h2>
-                    <span class="text-xs text-[#8c7365] mt-2 block">Assunto:</span>
-                    <h1 class="text-lg font-semibold text-[#f5efe6]">${email.subject}</h1>
-                    <span class="text-xs text-[#8c7365] mt-1 block">${new Date(email.created_at).toLocaleString()}</span>
+                <div class="border-b border-[#e2e8f0] pb-4 mb-4">
+                    <span class="text-xs text-[#a0aec0]">De:</span>
+                    <h2 class="text-sm font-medium text-[#2d3748]">${email.from_email}</h2>
+                    <span class="text-xs text-[#a0aec0] mt-2 block">Assunto:</span>
+                    <h1 class="text-lg font-semibold text-[#1a202c]">${email.subject}</h1>
+                    <span class="text-xs text-[#a0aec0] mt-1 block">${new Date(email.created_at).toLocaleString()}</span>
                 </div>
-                <div class="text-sm text-[#d4c3b3] whitespace-pre-wrap leading-relaxed">
+                <div class="text-sm text-[#4a5568] whitespace-pre-wrap leading-relaxed">
                     ${email.body || '(Sem conteúdo)'}
                 </div>
             `;
