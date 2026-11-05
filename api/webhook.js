@@ -4,21 +4,20 @@ export default async function handler(req, res) {
     }
 
     try {
-        console.log("Payload bruto recebido do Resend/Svix:", JSON.stringify(req.body));
+        console.log("Webhook recebido - Body bruto:", JSON.stringify(req.body));
 
-        // O Resend/Svix envia o evento encapsulado em .data ou diretamente no body
-        const eventData = req.body.data || req.body;
-        
-        // Extrai os campos considerando o formato padrão do Resend Inbound
-        const fromEmail = eventData.from || eventData.sender || 'Desconhecido';
-        const subjectText = eventData.subject || '(Sem assunto)';
-        const bodyText = eventData.text || eventData.html || eventData.body || '';
+        // Trata diferentes estruturas de payload que o Resend/Svix podem enviar
+        const payload = req.body.data || req.body;
+
+        const fromEmail = payload.from || payload.sender || payload.from_email || 'Desconhecido';
+        const subjectText = payload.subject || '(Sem assunto)';
+        const bodyText = payload.text || payload.html || payload.body || '';
 
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
         if (!supabaseUrl || !supabaseKey) {
-            throw new Error('Variáveis do Supabase ausentes na Vercel');
+            throw new Error('Variáveis de ambiente do Supabase ausentes');
         }
 
         const response = await fetch(`${supabaseUrl}/rest/v1/emails`, {
@@ -38,15 +37,15 @@ export default async function handler(req, res) {
 
         if (!response.ok) {
             const errData = await response.text();
-            console.error("Erro ao salvar no Supabase:", errData);
-            return res.status(400).json({ error: errData });
+            console.error("Erro retornado pelo Supabase:", errData);
+            return res.status(400).json({ success: false, error: errData });
         }
 
-        console.log("E-mail recebido e salvo com sucesso!");
+        console.log("E-mail salvo com sucesso no Supabase!");
         return res.status(200).json({ success: true });
 
     } catch (error) {
-        console.error("Exceção fatal no webhook:", error.message);
-        return res.status(500).json({ error: error.message });
+        console.error("Erro interno no webhook:", error.message);
+        return res.status(500).json({ success: false, error: error.message });
     }
 }
