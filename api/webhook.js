@@ -4,17 +4,17 @@ export default async function handler(req, res) {
     }
 
     try {
-        console.log("Recebendo webhook do Resend:", JSON.stringify(req.body));
+        console.log("Corpo recebido do Resend:", JSON.stringify(req.body));
 
-        const { from, subject, text } = req.body;
+        // O Resend pode enviar o remetente como 'from' (string) ou dentro de um objeto
+        const bodyData = req.body.data || req.body;
+        
+        const fromEmail = typeof bodyData.from === 'string' ? bodyData.from : (bodyData.from?.email || 'Desconhecido');
+        const subjectText = bodyData.subject || '(Sem assunto)';
+        const bodyText = bodyData.text || bodyData.html || '';
 
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseKey = process.env.SUPABASE_ANON_KEY;
-
-        if (!supabaseUrl || !supabaseKey) {
-            console.error("ERRO: Variáveis do Supabase ausentes na Vercel!");
-            throw new Error('Variáveis de ambiente do Supabase não configuradas');
-        }
 
         const response = await fetch(`${supabaseUrl}/rest/v1/emails`, {
             method: 'POST',
@@ -25,23 +25,23 @@ export default async function handler(req, res) {
                 'Prefer': 'return=minimal'
             },
             body: JSON.stringify({
-                from_email: from || 'Desconhecido',
-                subject: subject || '(Sem assunto)',
-                body: text || ''
+                from_email: fromEmail,
+                subject: subjectText,
+                body: bodyText
             })
         });
 
         if (!response.ok) {
             const errData = await response.text();
-            console.error("ERRO ao salvar no Supabase:", errData);
-            throw new Error('Erro ao salvar no Supabase: ' + errData);
+            console.error("ERRO detalhado do Supabase:", errData);
+            return res.status(400).json({ error: errData });
         }
 
-        console.log("E-mail salvo com sucesso no Supabase!");
+        console.log("E-mail salvo com sucesso!");
         return res.status(200).json({ success: true });
 
     } catch (error) {
-        console.error("EXCEÇÃO NO WEBHOOK:", error.message);
+        console.error("ERRO NO WEBHOOK:", error.message);
         return res.status(500).json({ error: error.message });
     }
 }
