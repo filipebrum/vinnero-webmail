@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinnero Webmail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { -webkit-font-smoothing: antialiased; }
+        .hidden-view { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+
+    <!-- Cabeçalho -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-rose-800">
+                <!-- Ícone de Taça de Vinho -->
+                <i data-lucide="wine" class="w-6 h-6"></i>
+                <h1 class="text-xl font-bold tracking-tight">Vinnero Mail</h1>
+            </div>
+            <div class="text-sm font-medium text-slate-500">
+                contato@vinnero.com.br
+            </div>
+        </div>
+    </header>
+
+    <!-- Estrutura Principal -->
+    <main class="flex-1 max-w-5xl mx-auto w-full flex flex-col md:flex-row gap-6 p-4">
+
+        <!-- Menu Lateral -->
+        <aside class="w-full md:w-64 flex flex-col gap-4">
+            <button onclick="toggleView('compose')" class="w-full bg-rose-700 hover:bg-rose-800 text-white font-semibold py-3 px-4 rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2">
+                <i data-lucide="pen-square" class="w-5 h-5"></i>
+                Nova Mensagem
+            </button>
+
+            <nav class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-hide">
+                <button onclick="toggleView('inbox')" id="btn-inbox" class="flex-1 md:flex-none flex items-center gap-3 px-4 py-3 bg-white text-rose-700 rounded-lg border border-slate-200 shadow-sm font-medium whitespace-nowrap transition-colors">
+                    <i data-lucide="inbox" class="w-5 h-5"></i>
+                    Caixa de Entrada
+                    <span class="ml-auto bg-rose-100 text-rose-800 py-0.5 px-2 rounded-full text-xs">2</span>
+                </button>
+                <button class="flex-1 md:flex-none flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors whitespace-nowrap">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                    Enviados
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Área de Conteúdo -->
+        <section class="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[500px] flex flex-col">
+
+            <!-- Tela: Caixa de Entrada -->
+            <div id="inbox-view" class="flex flex-col h-full flex-1">
+                <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <h2 class="text-lg font-semibold text-slate-800">Mensagens Recentes</h2>
+                    <button class="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="divide-y divide-slate-100 overflow-y-auto">
+                    <!-- Exemplo de Email 1 -->
+                    <div class="p-4 hover:bg-slate-50 cursor-pointer transition-colors flex flex-col gap-1">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-slate-900">Magnus - Fine Food</span>
+                            <span class="text-xs text-rose-600 font-medium">10:42</span>
+                        </div>
+                        <h3 class="font-medium text-slate-800 text-sm">Integração dos novos rótulos</h3>
+                        <p class="text-sm text-slate-500 truncate">Olá, gostaria de confirmar a importação dos vinhos para o PWA...</p>
+                    </div>
+                    <!-- Exemplo de Email 2 -->
+                    <div class="p-4 hover:bg-slate-50 cursor-pointer transition-colors flex flex-col gap-1 opacity-80">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium text-slate-700">Luiza</span>
+                            <span class="text-xs text-slate-400">Ontem</span>
+                        </div>
+                        <h3 class="font-medium text-slate-700 text-sm">Dúvidas sobre o cadastro no diretório</h3>
+                        <p class="text-sm text-slate-500 truncate">Podemos revisar como ficará a apresentação da Martini Casa do Vinho?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tela: Nova Mensagem -->
+            <div id="compose-view" class="hidden-view flex flex-col h-full flex-1">
+                <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
+                    <button onclick="toggleView('inbox')" class="text-slate-400 hover:text-slate-700 transition-colors">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <h2 class="text-lg font-semibold text-slate-800">Nova Mensagem</h2>
+                </div>
+                <form class="p-4 flex flex-col gap-4 flex-1">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">De</label>
+                        <input type="text" value="contato@vinnero.com.br" disabled class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-500 outline-none cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Para</label>
+                        <input type="email" placeholder="cliente@email.com" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Assunto</label>
+                        <input type="text" placeholder="Assunto da mensagem" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none transition-all">
+                    </div>
+                    <div class="flex-1 flex flex-col min-h-[200px]">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Mensagem</label>
+                        <textarea placeholder="Escreva aqui..." class="w-full flex-1 p-3 bg-white border border-slate-300 rounded-lg text-sm focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none resize-none transition-all"></textarea>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                        <button type="button" class="bg-rose-700 hover:bg-rose-800 text-white font-medium py-2.5 px-6 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                            Enviar via Resend
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleView(view) {
+            const inbox = document.getElementById('inbox-view');
+            const compose = document.getElementById('compose-view');
+            const btnInbox = document.getElementById('btn-inbox');
+            
+            if (view === 'compose') {
+                inbox.classList.add('hidden-view');
+                compose.classList.remove('hidden-view');
+                btnInbox.classList.replace('bg-white', 'bg-slate-50');
+                btnInbox.classList.replace('border-slate-200', 'border-transparent');
+                btnInbox.classList.replace('shadow-sm', 'shadow-none');
+            } else {
+                compose.classList.add('hidden-view');
+                inbox.classList.remove('hidden-view');
+                btnInbox.classList.replace('bg-slate-50', 'bg-white');
+                btnInbox.classList.replace('border-transparent', 'border-slate-200');
+                btnInbox.classList.replace('shadow-none', 'shadow-sm');
+            }
+        }
+    </script>
+</body>
+</html>
