@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vinnero Webmail</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { -webkit-font-smoothing: antialiased; }
         .hidden-view { display: none; }
     </style>
 </head>
@@ -16,10 +14,8 @@
     <!-- Cabeçalho -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2 text-rose-800">
-                <!-- Ícone de Taça de Vinho -->
-                <i data-lucide="wine" class="w-6 h-6"></i>
-                <h1 class="text-xl font-bold tracking-tight">Vinnero Mail</h1>
+            <div class="flex items-center gap-2 text-rose-800 font-bold text-xl">
+                <span>🍷 Vinnero Mail</span>
             </div>
             <div class="text-sm font-medium text-slate-500">
                 contato@vinnero.com.br
@@ -32,19 +28,13 @@
 
         <!-- Menu Lateral -->
         <aside class="w-full md:w-64 flex flex-col gap-4">
-            <button onclick="toggleView('compose')" class="w-full bg-rose-700 hover:bg-rose-800 text-white font-semibold py-3 px-4 rounded-xl shadow-sm transition-colors flex items-center justify-center gap-2">
-                <i data-lucide="pen-square" class="w-5 h-5"></i>
-                Nova Mensagem
+            <button onclick="toggleView('compose')" class="w-full bg-rose-700 hover:bg-rose-800 text-white font-semibold py-3 px-4 rounded-xl shadow-sm transition-colors text-center">
+                + Nova Mensagem
             </button>
 
-            <nav class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-hide">
-                <button onclick="toggleView('inbox')" id="btn-inbox" class="flex-1 md:flex-none flex items-center gap-3 px-4 py-3 bg-white text-rose-700 rounded-lg border border-slate-200 shadow-sm font-medium whitespace-nowrap transition-colors">
-                    <i data-lucide="inbox" class="w-5 h-5"></i>
-                    Caixa de Entrada
-                </button>
-                <button class="flex-1 md:flex-none flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors whitespace-nowrap">
-                    <i data-lucide="send" class="w-5 h-5"></i>
-                    Enviados
+            <nav class="flex flex-row md:flex-col gap-2">
+                <button onclick="toggleView('inbox')" id="btn-inbox" class="flex-1 md:flex-none text-left px-4 py-3 bg-white text-rose-700 rounded-lg border border-slate-200 shadow-sm font-medium transition-colors">
+                    📥 Caixa de Entrada
                 </button>
             </nav>
         </aside>
@@ -55,4 +45,150 @@
             <!-- Tela: Caixa de Entrada -->
             <div id="inbox-view" class="flex flex-col h-full flex-1">
                 <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <h2 class="text-lg font-semibold text-slate-8
+                    <h2 class="text-lg font-semibold text-slate-800">Mensagens Recentes</h2>
+                    <button onclick="loadEmails()" class="px-3 py-1 text-sm bg-slate-100 hover:bg-slate-200 rounded text-slate-600 transition-colors">
+                        Atualizar
+                    </button>
+                </div>
+                <div class="divide-y divide-slate-100 overflow-y-auto flex-1">
+                    <p class="p-4 text-sm text-slate-500">Carregando mensagens...</p>
+                </div>
+            </div>
+
+            <!-- Tela: Nova Mensagem -->
+            <div id="compose-view" class="hidden-view flex flex-col h-full flex-1">
+                <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
+                    <button onclick="toggleView('inbox')" class="text-rose-700 font-semibold text-sm">
+                        ← Voltar
+                    </button>
+                    <h2 class="text-lg font-semibold text-slate-800">Nova Mensagem</h2>
+                </div>
+                <div class="p-4 flex flex-col gap-4 flex-1">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">De</label>
+                        <input type="text" value="contato@vinnero.com.br" disabled class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-500 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Para</label>
+                        <input type="email" id="input-to" placeholder="cliente@email.com" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:border-rose-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Assunto</label>
+                        <input type="text" id="input-subject" placeholder="Assunto da mensagem" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:border-rose-500 outline-none">
+                    </div>
+                    <div class="flex-1 flex flex-col min-h-[180px]">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Mensagem</label>
+                        <textarea id="input-message" placeholder="Escreva aqui..." class="w-full flex-1 p-3 bg-white border border-slate-300 rounded-lg text-sm focus:border-rose-500 outline-none resize-none"></textarea>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                        <button type="button" id="btn-send" onclick="sendEmail()" class="bg-rose-700 hover:bg-rose-800 text-white font-medium py-2.5 px-6 rounded-lg shadow-sm transition-colors">
+                            Enviar via Resend
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        function toggleView(view) {
+            const inbox = document.getElementById('inbox-view');
+            const compose = document.getElementById('compose-view');
+            const btnInbox = document.getElementById('btn-inbox');
+            
+            if (view === 'compose') {
+                inbox.classList.add('hidden-view');
+                compose.classList.remove('hidden-view');
+                btnInbox.classList.remove('bg-white', 'text-rose-700', 'border-slate-200', 'shadow-sm');
+                btnInbox.classList.add('text-slate-600', 'bg-transparent');
+            } else {
+                compose.classList.add('hidden-view');
+                inbox.classList.remove('hidden-view');
+                btnInbox.classList.add('bg-white', 'text-rose-700', 'border-slate-200', 'shadow-sm');
+                btnInbox.classList.remove('text-slate-600', 'bg-transparent');
+                loadEmails();
+            }
+        }
+
+        async function loadEmails() {
+            const inboxContainer = document.querySelector('#inbox-view .divide-y');
+            inboxContainer.innerHTML = '<p class="p-4 text-sm text-slate-500">Carregando mensagens...</p>';
+
+            try {
+                const response = await fetch('/api/get-emails');
+                const emails = await response.json();
+
+                if (!Array.isArray(emails) || emails.length === 0) {
+                    inboxContainer.innerHTML = '<p class="p-4 text-sm text-slate-500">Nenhuma mensagem encontrada.</p>';
+                    return;
+                }
+
+                inboxContainer.innerHTML = '';
+
+                emails.forEach(email => {
+                    const dateObj = new Date(email.created_at);
+                    const dateStr = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+                    const emailHTML = `
+                        <div class="p-4 hover:bg-slate-50 cursor-pointer flex flex-col gap-1 border-b border-slate-100">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-slate-900">${email.from_email || 'Desconhecido'}</span>
+                                <span class="text-xs text-rose-600 font-medium">${dateStr}</span>
+                            </div>
+                            <h3 class="font-medium text-slate-800 text-sm">${email.subject || '(Sem assunto)'}</h3>
+                            <p class="text-sm text-slate-500 truncate">${email.body || ''}</p>
+                        </div>
+                    `;
+                    inboxContainer.innerHTML += emailHTML;
+                });
+            } catch (error) {
+                inboxContainer.innerHTML = '<p class="p-4 text-sm text-rose-500">Erro ao carregar mensagens do servidor.</p>';
+            }
+        }
+
+        async function sendEmail() {
+            const btn = document.getElementById('btn-send');
+            const to = document.getElementById('input-to').value;
+            const subject = document.getElementById('input-subject').value;
+            const text = document.getElementById('input-message').value;
+
+            if (!to || !subject || !text) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            btn.innerText = 'Enviando...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to, subject, text })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert('E-mail enviado com sucesso!');
+                    document.getElementById('input-to').value = '';
+                    document.getElementById('input-subject').value = '';
+                    document.getElementById('input-message').value = '';
+                    toggleView('inbox');
+                } else {
+                    alert('Erro ao enviar: ' + (result.error?.message || JSON.stringify(result.error)));
+                }
+            } catch (error) {
+                alert('Erro de conexão ao tentar enviar.');
+            } finally {
+                btn.innerText = 'Enviar via Resend';
+                btn.disabled = false;
+            }
+        }
+
+        // Carrega ao abrir a página
+        window.onload = loadEmails;
+    </script>
+</body>
+</html>
