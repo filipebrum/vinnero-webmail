@@ -17,8 +17,8 @@
     <div id="auth-screen" class="fixed inset-0 bg-[#f8f9fa] z-50 flex items-center justify-center p-4">
         <div class="bg-white border border-[#e2e8f0] rounded-2xl p-8 w-full max-w-md shadow-xl text-center">
             <div class="flex justify-center mb-6">
-                <!-- Substitua 'logo-email.png' pela URL direta ou caminho da sua imagem da logo se necessário -->
-                <img src="logo-email.png" alt="Vinnero Email" class="h-16 w-auto object-contain" onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50?text=Vinnero+Email';">
+                <!-- Alterado para SVG -->
+                <img src="logo-email.svg" alt="Vinnero Email" class="h-16 w-auto object-contain" onerror="this.onerror=null; this.src='https://via.placeholder.com/150x50?text=Vinnero+Email';">
             </div>
             <h1 class="text-xl font-semibold mb-2 text-[#1a202c]">Acesso Restrito</h1>
             <p class="text-sm text-[#718096] mb-6">Digite a senha para acessar o Vinnero Email.</p>
@@ -39,16 +39,16 @@
         <!-- Cabeçalho -->
         <header class="flex items-center justify-between px-6 py-4 bg-white border-b border-[#e2e8f0] shadow-sm">
             <div class="flex items-center space-x-3">
-                <img src="logo-email.png" alt="Vinnero Email" class="h-10 w-auto object-contain" onerror="this.onerror=null; this.src='https://via.placeholder.com/120x40?text=Vinnero';">
+                <img src="logo-email.svg" alt="Vinnero Email" class="h-10 w-auto object-contain" onerror="this.onerror=null; this.src='https://via.placeholder.com/120x40?text=Vinnero';">
             </div>
             <div class="flex items-center space-x-3">
-                <button onclick="openComposeModal()" class="px-4 py-2 bg-[#2c3e50] hover:bg-[#34495e] text-white text-xs font-medium rounded-lg transition-colors flex items-center space-x-1 cursor-pointer shadow-sm">
+                <button onclick="openComposeModal()" class="px-4 py-2 bg-[#2c3e50] hover:bg-[#34495e] text-white text-xs font-medium rounded-lg transition-colors flex items-center space-x-1 shadow-sm cursor-pointer">
                     <span>+ Novo E-mail</span>
                 </button>
-                <button onclick="fetchEmails()" class="px-3 py-2 bg-[#edf2f7] hover:bg-[#e2e8f0] text-xs font-medium rounded-lg transition-colors cursor-pointer text-[#4a5568]">
+                <button onclick="fetchEmails()" class="px-3 py-2 bg-[#edf2f7] hover:bg-[#e2e8f0] text-xs font-medium rounded-lg transition-colors text-[#4a5568] cursor-pointer">
                     Atualizar
                 </button>
-                <button onclick="handleLogout()" class="text-xs text-[#718096] hover:text-[#2d3748] transition-colors px-2">
+                <button onclick="handleLogout()" class="text-xs text-[#718096] hover:text-[#2d3748] transition-colors px-2 cursor-pointer">
                     Sair
                 </button>
             </div>
@@ -56,10 +56,16 @@
 
         <!-- Corpo Principal -->
         <main class="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Lista de E-mails -->
-            <div class="bg-white border border-[#e2e8f0] rounded-2xl p-4 overflow-y-auto max-h-[75vh] shadow-sm">
-                <h2 class="text-xs font-semibold text-[#718096] uppercase tracking-wider mb-4 px-2">Caixa de Entrada</h2>
-                <div id="email-list" class="space-y-2">
+            <!-- Lista de E-mails com Abas -->
+            <div class="bg-white border border-[#e2e8f0] rounded-2xl p-4 overflow-y-auto max-h-[75vh] shadow-sm flex flex-col">
+                
+                <!-- Abas de Navegação -->
+                <div class="flex space-x-2 mb-4 border-b border-[#e2e8f0] pb-2">
+                    <button onclick="switchTab('inbox')" id="tab-inbox" class="flex-1 text-xs font-semibold px-3 py-2 rounded-md bg-[#2c3e50] text-white transition-colors cursor-pointer">Entrada</button>
+                    <button onclick="switchTab('sent')" id="tab-sent" class="flex-1 text-xs font-semibold px-3 py-2 rounded-md text-[#718096] hover:bg-[#edf2f7] transition-colors cursor-pointer">Enviados</button>
+                </div>
+
+                <div id="email-list" class="space-y-2 flex-1 overflow-y-auto">
                     <p class="text-xs text-[#a0aec0] px-2">Carregando mensagens...</p>
                 </div>
             </div>
@@ -80,7 +86,7 @@
         <div class="bg-white border border-[#e2e8f0] rounded-2xl p-6 w-full max-w-lg shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b border-[#e2e8f0] pb-3">
                 <h3 class="text-sm font-semibold text-[#2d3748]">Nova Mensagem</h3>
-                <button onclick="closeComposeModal()" class="text-[#718096] hover:text-[#2d3748] text-sm font-bold">✕</button>
+                <button onclick="closeComposeModal()" class="text-[#718096] hover:text-[#2d3748] text-sm font-bold cursor-pointer">✕</button>
             </div>
             <form onsubmit="sendEmail(event)" class="space-y-4">
                 <div>
@@ -99,10 +105,10 @@
                         class="w-full px-3 py-2 bg-[#f7fafc] border border-[#cbd5e0] rounded-lg text-xs text-[#2d3748] focus:outline-none focus:border-[#4a5568]"></textarea>
                 </div>
                 <div class="flex justify-end space-x-2 pt-2">
-                    <button type="button" onclick="closeComposeModal()" class="px-4 py-2 bg-[#edf2f7] hover:bg-[#e2e8f0] text-xs font-medium rounded-lg text-[#4a5568]">
+                    <button type="button" onclick="closeComposeModal()" class="px-4 py-2 bg-[#edf2f7] hover:bg-[#e2e8f0] text-xs font-medium rounded-lg text-[#4a5568] cursor-pointer">
                         Cancelar
                     </button>
-                    <button type="submit" id="send-btn" class="px-4 py-2 bg-[#2c3e50] hover:bg-[#34495e] text-white text-xs font-medium rounded-lg transition-colors">
+                    <button type="submit" id="send-btn" class="px-4 py-2 bg-[#2c3e50] hover:bg-[#34495e] text-white text-xs font-medium rounded-lg transition-colors cursor-pointer">
                         Enviar E-mail
                     </button>
                 </div>
@@ -113,6 +119,8 @@
     <!-- Scripts de Controle -->
     <script>
         const CORRECT_PASSWORD = "vinnero2026";
+        let allEmails = [];
+        let currentTab = 'inbox'; // Pode ser 'inbox' ou 'sent'
 
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('vinnero_auth') === 'true') {
@@ -148,6 +156,19 @@
             document.getElementById('compose-modal').classList.add('hidden');
         }
 
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Atualiza cores das abas
+            const activeClass = "flex-1 text-xs font-semibold px-3 py-2 rounded-md bg-[#2c3e50] text-white transition-colors cursor-pointer";
+            const inactiveClass = "flex-1 text-xs font-semibold px-3 py-2 rounded-md text-[#718096] hover:bg-[#edf2f7] transition-colors cursor-pointer";
+            
+            document.getElementById('tab-inbox').className = tab === 'inbox' ? activeClass : inactiveClass;
+            document.getElementById('tab-sent').className = tab === 'sent' ? activeClass : inactiveClass;
+            
+            renderEmailList();
+        }
+
         async function sendEmail(event) {
             event.preventDefault();
             const to = document.getElementById('compose-to').value;
@@ -172,6 +193,8 @@
                     document.getElementById('compose-to').value = '';
                     document.getElementById('compose-subject').value = '';
                     document.getElementById('compose-body').value = '';
+                    // Atualiza a lista para puxar o email recém enviado
+                    fetchEmails(); 
                 } else {
                     alert('Erro ao enviar: ' + (data.error || 'Erro desconhecido'));
                 }
@@ -189,40 +212,72 @@
             
             try {
                 const res = await fetch('/api/get-emails');
-                const emails = await res.json();
-
-                if (!Array.isArray(emails) || emails.length === 0) {
-                    listContainer.innerHTML = '<p class="text-xs text-[#a0aec0] px-2">Nenhum e-mail recebido ainda.</p>';
-                    return;
-                }
-
-                listContainer.innerHTML = '';
-                emails.forEach((email) => {
-                    const item = document.createElement('div');
-                    item.className = 'p-3 rounded-xl bg-white border border-[#e2e8f0] hover:border-[#cbd5e0] hover:bg-[#f7fafc] cursor-pointer transition-colors shadow-xs';
-                    item.innerHTML = `
-                        <p class="text-xs font-semibold text-[#2d3748] truncate">${email.from_email || 'Desconhecido'}</p>
-                        <p class="text-xs text-[#4a5568] truncate mt-1">${email.subject || '(Sem assunto)'}</p>
-                        <span class="text-[10px] text-[#a0aec0] mt-2 block">${new Date(email.created_at).toLocaleString()}</span>
-                    `;
-                    item.onclick = () => displayEmailDetail(email);
-                    listContainer.appendChild(item);
-                });
-
-                if (emails.length > 0) {
-                    displayEmailDetail(emails[0]);
-                }
+                allEmails = await res.json();
+                renderEmailList();
             } catch (err) {
                 listContainer.innerHTML = '<p class="text-xs text-red-500 px-2">Erro ao carregar e-mails.</p>';
             }
         }
 
+        function renderEmailList() {
+            const listContainer = document.getElementById('email-list');
+            
+            if (!Array.isArray(allEmails)) {
+                listContainer.innerHTML = '<p class="text-xs text-[#a0aec0] px-2">Nenhum e-mail encontrado.</p>';
+                return;
+            }
+
+            // Filtra os emails baseado na aba ativa (contato@vinnero.com.br é o seu email oficial)
+            let displayEmails = [];
+            if (currentTab === 'inbox') {
+                // Entrada: emails onde você NÃO é o remetente
+                displayEmails = allEmails.filter(email => email.from_email !== 'contato@vinnero.com.br');
+            } else {
+                // Enviados: emails onde você É o remetente
+                displayEmails = allEmails.filter(email => email.from_email === 'contato@vinnero.com.br');
+            }
+
+            if (displayEmails.length === 0) {
+                listContainer.innerHTML = `<p class="text-xs text-[#a0aec0] px-2">Caixa vazia.</p>`;
+                document.getElementById('email-detail').innerHTML = `<div class="text-center py-16 text-[#a0aec0]"><p class="text-sm">Nenhum e-mail nesta pasta.</p></div>`;
+                return;
+            }
+
+            listContainer.innerHTML = '';
+            displayEmails.forEach((email) => {
+                const item = document.createElement('div');
+                item.className = 'p-3 rounded-xl bg-white border border-[#e2e8f0] hover:border-[#cbd5e0] hover:bg-[#f7fafc] cursor-pointer transition-colors shadow-xs mb-2';
+                
+                // Se for caixa de entrada, mostra quem mandou. Se for enviados, mostra para quem foi.
+                const contactInfo = currentTab === 'inbox' 
+                    ? `<span class="font-semibold">${email.from_email || 'Desconhecido'}</span>`
+                    : `Para: <span class="font-semibold">${email.to_email || 'Desconhecido'}</span>`;
+
+                item.innerHTML = `
+                    <p class="text-xs text-[#2d3748] truncate">${contactInfo}</p>
+                    <p class="text-xs text-[#4a5568] truncate mt-1">${email.subject || '(Sem assunto)'}</p>
+                    <span class="text-[10px] text-[#a0aec0] mt-2 block">${new Date(email.created_at).toLocaleString()}</span>
+                `;
+                item.onclick = () => displayEmailDetail(email);
+                listContainer.appendChild(item);
+            });
+
+            // Mostra automaticamente o primeiro e-mail da lista filtrada
+            if (displayEmails.length > 0) {
+                displayEmailDetail(displayEmails[0]);
+            }
+        }
+
         function displayEmailDetail(email) {
             const detailContainer = document.getElementById('email-detail');
+            
+            const contactLabel = currentTab === 'inbox' ? 'De:' : 'Para:';
+            const contactValue = currentTab === 'inbox' ? email.from_email : (email.to_email || 'Desconhecido');
+
             detailContainer.innerHTML = `
                 <div class="border-b border-[#e2e8f0] pb-4 mb-4">
-                    <span class="text-xs text-[#a0aec0]">De:</span>
-                    <h2 class="text-sm font-medium text-[#2d3748]">${email.from_email}</h2>
+                    <span class="text-xs text-[#a0aec0]">${contactLabel}</span>
+                    <h2 class="text-sm font-medium text-[#2d3748]">${contactValue}</h2>
                     <span class="text-xs text-[#a0aec0] mt-2 block">Assunto:</span>
                     <h1 class="text-lg font-semibold text-[#1a202c]">${email.subject}</h1>
                     <span class="text-xs text-[#a0aec0] mt-1 block">${new Date(email.created_at).toLocaleString()}</span>
