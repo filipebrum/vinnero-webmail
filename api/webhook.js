@@ -1,25 +1,38 @@
 export default async function handler(req, res) {
-    // O Resend envia um POST para este webhook
     if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido' });
 
     try {
         const payload = req.body;
         
-        // O Resend encapsula os dados do e-mail dentro de "data"
+        // 1. Extrai o "envelope" do e-mail
         const emailData = payload.data;
-        if (!emailData) return res.status(400).json({ error: 'Payload vazio' });
+        if (!emailData || !emailData.email_id) {
+            return res.status(400).json({ error: 'Payload vazio ou sem ID' });
+        }
 
-        // Extrai os campos corretamente (o Resend pode mandar o texto em 'html' ou 'text')
         const from_email = emailData.from;
         const subject = emailData.subject;
-        const bodyContent = emailData.html || emailData.text || '(Mensagem sem texto)';
         const to_email = emailData.to ? emailData.to[0] : 'contato@vinnero.com.br';
+        
+        // 2. O Segredo: Busca o corpo real da mensagem no Resend usando o ID
+        const resendKey = process.env.RESEND_API_KEY;
+        const fetchContent = await fetch(`https://api.resend.com/emails/${emailData.email_id}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${resendKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const fullEmail = await fetchContent.json();
+        // Agora sim temos acesso ao HTML ou Texto puro do e-mail
+        const bodyContent = fullEmail.html || fullEmail.text || '(Mensagem vazia ou ilegível)';
 
+        // 3. Salva no Supabase (já com o texto correto)
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-        // Guarda no Supabase
-        const supabaseResponse = await fetch(`${supabaseUrl}/rest/v1/emails`, {
+        await fetch(`${supabaseUrl}/rest/v1/emails`, {
             method: 'POST',
             headers: {
                 'apikey': supabaseKey,
@@ -34,10 +47,6 @@ export default async function handler(req, res) {
                 body: bodyContent
             })
         });
-
-        if (!supabaseResponse.ok) {
-            console.error("Erro ao guardar no Supabase:", await supabaseResponse.text());
-        }
 
         return res.status(200).json({ success: true });
     } catch (error) {
