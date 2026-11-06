@@ -3,32 +3,15 @@ export default async function handler(req, res) {
 
     try {
         const payload = req.body;
-        
-        // 1. Extrai o "envelope" do e-mail
-        const emailData = payload.data;
-        if (!emailData || !emailData.email_id) {
-            return res.status(400).json({ error: 'Payload vazio ou sem ID' });
-        }
+        const emailData = payload.data || payload;
 
-        const from_email = emailData.from;
-        const subject = emailData.subject;
-        const to_email = emailData.to ? emailData.to[0] : 'contato@vinnero.com.br';
-        
-        // 2. O Segredo: Busca o corpo real da mensagem no Resend usando o ID
-        const resendKey = process.env.RESEND_API_KEY;
-        const fetchContent = await fetch(`https://api.resend.com/emails/${emailData.email_id}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${resendKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const fullEmail = await fetchContent.json();
-        // Agora sim temos acesso ao HTML ou Texto puro do e-mail
-        const bodyContent = fullEmail.html || fullEmail.text || '(Mensagem vazia ou ilegível)';
+        const from_email = emailData.from || 'desconhecido';
+        const subject = emailData.subject || 'Sem assunto';
+        const to_email = (emailData.to && emailData.to[0]) ? emailData.to[0] : 'contato@vinnero.com.br';
 
-        // 3. Salva no Supabase (já com o texto correto)
+        // Tática de investigação: Se não encontrar o texto nos campos padrão, converte o pacote inteiro em texto
+        const bodyContent = emailData.text || emailData.html || payload.text || payload.html || JSON.stringify(payload, null, 2);
+
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
@@ -50,7 +33,6 @@ export default async function handler(req, res) {
 
         return res.status(200).json({ success: true });
     } catch (error) {
-        console.error("Erro no Webhook:", error.message);
         return res.status(500).json({ error: error.message });
     }
 }
