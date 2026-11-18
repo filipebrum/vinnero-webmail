@@ -4,8 +4,8 @@ export default async function handler(req, res) {
     try {
         const { to, subject, body } = req.body;
         const resendKey = process.env.RESEND_API_KEY;
-        const supabaseUrl = process.env.SUPABASE_URL; // Precisa estar nas variáveis da Vercel
-        const supabaseKey = process.env.SUPABASE_ANON_KEY; // Precisa estar nas variáveis da Vercel
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         if (!resendKey) return res.status(500).json({ error: 'Chave do Resend ausente.' });
 
